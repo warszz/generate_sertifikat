@@ -1,0 +1,40 @@
+# Dependencies
+vendor/
+node_modules/
+composer.lock
+
+# Configuration & Credentials
+config/users.json
+.env
+.env.local
+.env.*.local
+
+# System Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Log Files
+*.log
+logs/
+
+# Cache Files
+.cache/
+tmp/
+temp/
+
+# IDE Settings
+.phpstorm.meta.php
+_ide_helper.php
+
+# Generated Files
+*.pdf
+certificates/
+generated_pdf/
+
+# OS Files
+.gitkeep
