@@ -179,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="logo">🔐</div>
         
         <h1>Login</h1>
-        <p class="subtitle">Sistem Manajemen Sertifikat</p>
+        <p class="subtitle">Sistem generate Sertifikat</p>
         
         <?php if (isset($error)): ?>
             <div class="alert alert-error">
@@ -200,12 +200,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <button type="submit">🔓 Masuk</button>
         </form>
-        
-        <div class="info-box">
-            <strong>Demo Login:</strong><br>
-            Username: <code style="background: #f0f0f0; padding: 2px 4px; border-radius: 2px;">admin</code><br>
-            Password: <code style="background: #f0f0f0; padding: 2px 4px; border-radius: 2px;">admin123</code>
-        </div>
         
         <div style="text-align: center; margin-top: 20px; font-size: 13px; color: #666;">
             Belum punya akun? <a href="register.php" style="color: #667eea; font-weight: 600; text-decoration: none;">Daftar di sini</a>

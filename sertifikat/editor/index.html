@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Editor - Fabric.js</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            min-height: 600px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #f8f9fa;
+            border-right: 1px solid #e0e0e0;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .tool-section {
+            margin-bottom: 25px;
+        }
+
+        .tool-section h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .tool-btn {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tool-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .tool-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .color-picker-group {
+            margin-bottom: 12px;
+        }
+
+        .color-picker-group label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 8px;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="color"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Main Canvas Area */
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #fafafa;
+        }
+
+        .toolbar {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 10px;
+        }
+
+        .toolbar-right {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f4ff;
+        }
+
+        .btn-danger {
+            background: #f8f9fa;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+        }
+
+        .btn-danger:hover {
+            background: #fff5f5;
+        }
+
+        .canvas-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            overflow: auto;
+            background: #fafafa;
+        }
+
+        #canvas {
+            background: white;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            cursor: default;
+            border: 2px solid #e0e0e0;
+        }
+
+        .info-panel {
+            background: white;
+            border-left: 1px solid #e0e0e0;
+            padding: 20px;
+            width: 250px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .info-panel.active {
+            display: block;
+        }
+
+        .info-panel h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            color: #667eea;
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+        }
+
+        .info-item label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .info-item input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-modal {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .btn-modal-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-modal-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-modal-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-modal-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+            .info-panel {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            .info-panel {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid #e0e0e0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>📐 Template Editor</h2>
+
+            <!-- Background Section -->
+            <div class="tool-section">
+                <h3>Background</h3>
+                <button class="tool-btn" onclick="document.getElementById('bgUpload').click()">
+                    📤 Upload Image
+                </button>
+                <input type="file" id="bgUpload" accept="image/*" onchange="uploadBackground(event)">
+                <button class="tool-btn btn-danger" onclick="clearBackground()" style="margin-top: 8px;">
+                    🗑️ Clear
+                </button>
+            </div>
+
+            <!-- Text Section -->
+            <div class="tool-section">
+                <h3>Add Content</h3>
+                <button class="tool-btn" onclick="addStaticText()">
+                    ✏️ Add Text
+                </button>
+                <button class="tool-btn" onclick="showVariableModal()">
+                    🏷️ Add Variable
+                </button>
+            </div>
+
+            <!-- Variables Reference -->
+            <div class="tool-section">
+                <h3>Available Variables</h3>
+                <div style="background: #f0f4ff; padding: 12px; border-radius: 6px; font-size: 12px; color: #333; line-height: 1.6;">
+                    <strong>{nama}</strong><br>
+                    Participant name
+                    <br><br>
+                    <strong>{instansi}</strong><br>
+                    Organization
+                    <br><br>
+                    <strong>{peran}</strong><br>
+                    Role/Position
+                </div>
+            </div>
+
+            <!-- Canvas Actions -->
+            <div class="tool-section">
+                <h3>Canvas</h3>
+                <button class="tool-btn btn-danger" onclick="clearCanvas()" style="margin-bottom: 8px;">
+                    🔄 Clear All
+                </button>
+                <button class="tool-btn" onclick="showCanvas()" style="background: white; border: 2px solid #667eea; color: #667eea;">
+                    👁️ View
+                </button>
+            </div>
+
+            <!-- Export Section -->
+            <div class="tool-section">
+                <h3>Export</h3>
+                <button class="tool-btn btn-primary" onclick="downloadJSON()">
+                    💾 Download JSON
+                </button>
+                <button class="tool-btn btn-primary" onclick="showSaveModal()" style="margin-top: 8px;">
+                    📤 Save Template
+                </button>
+            </div>
+        </div>
+
+        <!-- Canvas Area -->
+        <div class="canvas-area">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <h3 style="margin: 0; color: #333; font-size: 14px;">Canvas Editor</h3>
+                </div>
+                <div class="toolbar-right">
+                    <button class="btn btn-secondary" onclick="deleteSelected()">
+                        🗑️ Delete Selected
+                    </button>
+                    <button class="btn btn-secondary" onclick="downloadJSON()">
+                        💾 Export JSON
+                    </button>
+                </div>
+            </div>
+
+            <div class="canvas-wrapper">
+                <canvas id="canvas" width="800" height="566"></canvas>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-panel" id="infoPanel">
+            <h3>Object Properties</h3>
+            <div id="objectInfo"></div>
+        </div>
+    </div>
+
+    <!-- Variable Modal -->
+    <div id="variableModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Add Variable Text</div>
+            <div id="variableAlerts"></div>
+            
+            <div class="form-group">
+                <label>Select Variable *</label>
+                <select id="variableSelect" style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;">
+                    <option value="{nama}">Nama Peserta ({nama})</option>
+                    <option value="{instansi}">Instansi ({instansi})</option>
+                    <option value="{peran}">Peran ({peran})</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Default Value (Preview)</label>
+                <input type="text" id="defaultValue" placeholder="e.g., John Doe" value="John Doe">
+            </div>
+
+            <div class="form-group">
+                <label>Font Size</label>
+                <input type="number" id="fontSize" value="24" min="8" max="72">
+            </div>
+
+            <div class="form-group">
+                <label>Text Color</label>
+                <input type="color" id="textColor" value="#000000">
+            </div>
+
+            <div class="form-group">
+                <label>Font Family</label>
+                <select id="fontFamily" style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;">
+                    <option value="Arial">Arial</option>
+                    <option value="Courier">Courier</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Verdana">Verdana</option>
+                </select>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-modal btn-modal-secondary" onclick="closeModal('variableModal')">
+                    Cancel
+                </button>
+                <button class="btn-modal btn-modal-primary" onclick="confirmAddVariable()">
+                    Add Variable
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Modal -->
+    <div id="saveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Save Template</div>
+            <div id="saveAlerts"></div>
+
+            <div class="form-group">
+                <label>Template Name *</label>
+                <input type="text" id="templateName" placeholder="e.g., Certificate 2026" required>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="templateDesc" placeholder="Optional description..." style="height: 80px; resize: none;"></textarea>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-modal btn-modal-secondary" onclick="closeModal('saveModal')">
+                    Cancel
+                </button>
+                <button class="btn-modal btn-modal-primary" onclick="saveTemplate()">
+                    Save Template
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let canvas;
+        let backgroundImage = null;
+
+        // Initialize Fabric Canvas
+        document.addEventListener('DOMContentLoaded', function() {
+            canvas = new fabric.Canvas('canvas', {
+                width: 800,
+                height: 566,
+                backgroundColor: 'white'
+            });
+
+            // Event listeners
+            canvas.on('object:added', updateInfoPanel);
+            canvas.on('object:modified', updateInfoPanel);
+            canvas.on('object:removed', updateInfoPanel);
+            canvas.on('selection:created', updateInfoPanel);
+            canvas.on('selection:updated', updateInfoPanel);
+            canvas.on('selection:cleared', clearInfoPanel);
+        });
+
+        /**
+         * Upload Background Image
+         */
+        function uploadBackground(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                fabric.Image.fromURL(e.target.result, function(img) {
+                    // Scale to canvas size
+                    img.scaleToWidth(canvas.width);
+                    canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+                    backgroundImage = e.target.result;
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /**
+         * Clear Background
+         */
+        function clearBackground() {
+            canvas.backgroundImage = null;
+            canvas.renderAll();
+            backgroundImage = null;
+        }
+
+        /**
+         * Add Static Text
+         */
+        function addStaticText() {
+            const text = new fabric.IText('Click to edit text', {
+                left: 100,
+                top: 100,
+                fontSize: 24,
+                fill: '#000000',
+                fontFamily: 'Arial'
+            });
+            canvas.add(text);
+            canvas.setActiveObject(text);
+            canvas.renderAll();
+        }
+
+        /**
+         * Show Variable Modal
+         */
+        function showVariableModal() {
+            clearAlerts('variableAlerts');
+            document.getElementById('variableSelect').value = '{nama}';
+            document.getElementById('defaultValue').value = 'John Doe';
+            document.getElementById('fontSize').value = '24';
+            document.getElementById('textColor').value = '#000000';
+            document.getElementById('fontFamily').value = 'Arial';
+            document.getElementById('variableModal').classList.add('active');
+        }
+
+        /**
+         * Confirm Add Variable
+         */
+        function confirmAddVariable() {
+            const variable = document.getElementById('variableSelect').value;
+            const defaultValue = document.getElementById('defaultValue').value || variable;
+            const fontSize = parseInt(document.getElementById('fontSize').value) || 24;
+            const textColor = document.getElementById('textColor').value;
+            const fontFamily = document.getElementById('fontFamily').value;
+
+            const text = new fabric.IText(defaultValue, {
+                left: 100,
+                top: 100,
+                fontSize: fontSize,
+                fill: textColor,
+                fontFamily: fontFamily,
+                metadata: {
+                    type: 'variable',
+                    variable: variable
+                }
+            });
+
+            canvas.add(text);
+            canvas.setActiveObject(text);
+            canvas.renderAll();
+            closeModal('variableModal');
+        }
+
+        /**
+         * Delete Selected Object
+         */
+        function deleteSelected() {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject) {
+                canvas.remove(activeObject);
+                canvas.renderAll();
+                clearInfoPanel();
+            }
+        }
+
+        /**
+         * Clear Canvas
+         */
+        function clearCanvas() {
+            if (confirm('Clear all objects? This cannot be undone.')) {
+                canvas.clear();
+                canvas.renderAll();
+                clearInfoPanel();
+            }
+        }
+
+        /**
+         * Update Info Panel
+         */
+        function updateInfoPanel() {
+            const activeObject = canvas.getActiveObject();
+            if (!activeObject) {
+                clearInfoPanel();
+                return;
+            }
+
+            let html = '';
+            const metadata = activeObject.metadata || {};
+
+            if (metadata.type === 'variable') {
+                html += `<div style="background: #e8f4f8; padding: 10px; border-radius: 4px; margin-bottom: 12px; font-size: 12px; color: #0066cc;">
+                    <strong>Variable:</strong> ${metadata.variable}
+                </div>`;
+            }
+
+            html += '<div class="info-item">';
+            html += '<label>Position X</label>';
+            html += `<input type="number" value="${Math.round(activeObject.left)}" onchange="updateObjectProperty('left', this.value)">`;
+            html += '</div>';
+
+            html += '<div class="info-item">';
+            html += '<label>Position Y</label>';
+            html += `<input type="number" value="${Math.round(activeObject.top)}" onchange="updateObjectProperty('top', this.value)">`;
+            html += '</div>';
+
+            if (activeObject.fontSize) {
+                html += '<div class="info-item">';
+                html += '<label>Font Size</label>';
+                html += `<input type="number" value="${activeObject.fontSize}" onchange="updateObjectProperty('fontSize', this.value)">`;
+                html += '</div>';
+            }
+
+            if (activeObject.fill) {
+                html += '<div class="info-item">';
+                html += '<label>Color</label>';
+                html += `<input type="color" value="${activeObject.fill}" onchange="updateObjectProperty('fill', this.value)">`;
+                html += '</div>';
+            }
+
+            document.getElementById('objectInfo').innerHTML = html;
+            document.getElementById('infoPanel').classList.add('active');
+        }
+
+        /**
+         * Clear Info Panel
+         */
+        function clearInfoPanel() {
+            document.getElementById('infoPanel').classList.remove('active');
+            document.getElementById('objectInfo').innerHTML = '';
+        }
+
+        /**
+         * Update Object Property
+         */
+        function updateObjectProperty(property, value) {
+            const activeObject = canvas.getActiveObject();
+            if (!activeObject) return;
+
+            if (['left', 'top', 'fontSize'].includes(property)) {
+                activeObject[property] = parseInt(value);
+            } else {
+                activeObject[property] = value;
+            }
+
+            canvas.renderAll();
+        }
+
+        /**
+         * Export Canvas as JSON
+         */
+        function exportCanvasJSON() {
+            const data = {
+                canvas: canvas.toJSON(),
+                background: backgroundImage || null,
+                timestamp: new Date().toISOString()
+            };
+            return data;
+        }
+
+        /**
+         * Download JSON
+         */
+        function downloadJSON() {
+            const data = exportCanvasJSON();
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `template_${Date.now()}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        /**
+         * Show Save Modal
+         */
+        function showSaveModal() {
+            clearAlerts('saveAlerts');
+            document.getElementById('templateName').value = '';
+            document.getElementById('templateDesc').value = '';
+            document.getElementById('saveModal').classList.add('active');
+        }
+
+        /**
+         * Save Template
+         */
+        function saveTemplate() {
+            const name = document.getElementById('templateName').value.trim();
+            if (!name) {
+                showAlert('saveAlerts', 'Please enter a template name', 'error');
+                return;
+            }
+
+            const data = exportCanvasJSON();
+            data.name = name;
+            data.description = document.getElementById('templateDesc').value.trim();
+
+            // Send to backend
+            fetch('../admin/builder_api.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'save_template',
+                    template: data
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showAlert('saveAlerts', 'Template saved successfully!', 'success');
+                    setTimeout(() => {
+                        closeModal('saveModal');
+                    }, 1500);
+                } else {
+                    showAlert('saveAlerts', result.message || 'Error saving template', 'error');
+                }
+            })
+            .catch(error => {
+                showAlert('saveAlerts', 'Error: ' + error.message, 'error');
+            });
+        }
+
+        /**
+         * Modal Helpers
+         */
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function showAlert(elementId, message, type) {
+            const alertHtml = `<div class="alert alert-${type}">
+                <strong>${type === 'success' ? '✓' : '✕'}</strong> ${message}
+            </div>`;
+            document.getElementById(elementId).innerHTML = alertHtml;
+        }
+
+        function clearAlerts(elementId) {
+            document.getElementById(elementId).innerHTML = '';
+        }
+
+        /**
+         * Helper: Show canvas (for mobile/hidden view)
+         */
+        function showCanvas() {
+            document.querySelector('.canvas-area').style.flex = '1';
+            document.querySelector('.sidebar').style.display = 'none';
+            document.getElementById('infoPanel').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

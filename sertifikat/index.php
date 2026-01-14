@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Manajemen Sertifikat</title>
+    <title>Sistem generate Sertifikat</title>
     <style>
         * {
             margin: 0;
@@ -133,7 +133,7 @@
     <div class="container">
         <div class="logo">🎓</div>
         
-        <h1>Sistem Manajemen Sertifikat</h1>
+        <h1>Sistem generate Sertifikat</h1>
         <p class="subtitle">
             Platform lengkap untuk membuat dan mengelola sertifikat digital<br>
             dengan berbagai template yang dapat disesuaikan
@@ -149,6 +149,10 @@
                 <div>3 template desain sertifikat profesional</div>
             </div>
             <div class="feature-item">
+                <div class="feature-icon">✏️</div>
+                <div>Generate template custom dengan drag-drop editor (Canva-like)</div>
+            </div>
+            <div class="feature-item">
                 <div class="feature-icon">📄</div>
                 <div>Generate PDF berkualitas tinggi secara otomatis</div>
             </div>
@@ -162,7 +166,6 @@
             <a href="login.php" class="btn btn-primary">🔐 Login Sistem</a>
             <a href="register.php" class="btn btn-secondary">📝 Daftar Akun Baru</a>
         </div>
-        
         
     </div>
 </body>

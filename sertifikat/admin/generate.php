@@ -3,14 +3,40 @@ require_once 'check_login.php';
 require_once '../config/database.php';
 
 $username = $_SESSION['user'];
+
+// Query UNION: Get both default peserta and custom certificate participants
 $stmt = $pdo->prepare("
-    SELECT p.*, t.nama_template, t.file_template
+    SELECT 
+        p.id,
+        p.nama,
+        p.instansi,
+        p.peran,
+        'default' as tipe,
+        t.nama_template as template_name,
+        p.dibuat_pada,
+        NULL as custom_cert_id
     FROM peserta p
-    JOIN template_sertifikat t ON p.template_id = t.id
+    LEFT JOIN template_sertifikat t ON p.template_id = t.id
     WHERE p.username = ?
-    ORDER BY p.id DESC
+    
+    UNION ALL
+    
+    SELECT 
+        ccp.id,
+        ccp.nama,
+        ccp.instansi,
+        ccp.peran,
+        'custom' as tipe,
+        cc.nama as template_name,
+        ccp.dibuat_pada,
+        ccp.custom_cert_id
+    FROM custom_cert_peserta ccp
+    LEFT JOIN custom_certificates cc ON ccp.custom_cert_id = cc.id
+    WHERE ccp.username = ?
+    
+    ORDER BY dibuat_pada DESC
 ");
-$stmt->execute([$username]);
+$stmt->execute([$username, $username]);
 $data = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
@@ -200,6 +226,7 @@ $data = $stmt->fetchAll();
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                 <span style="color: #666; font-size: 13px;">👤 <?= htmlspecialchars($current_user); ?></span>
                 <a href="form_peserta.php" class="btn btn-primary">➕ Tambah Peserta Baru</a>
+                <a href="custom_certificates.php" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">🎨 Custom Builder</a>
                 <a href="../logout.php" class="btn btn-danger" style="background: #e74c3c; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; font-size: 13px; cursor: pointer;">🚪 Logout</a>
             </div>
         </div>
@@ -235,6 +262,7 @@ $data = $stmt->fetchAll();
                             <th>Instansi</th>
                             <th>Peran</th>
                             <th>Template</th>
+                            <th>Tipe</th>
                             <th>Tanggal</th>
                             <th>Aksi</th>
                         </tr>
@@ -246,13 +274,28 @@ $data = $stmt->fetchAll();
                             <td><strong><?= htmlspecialchars($d['nama']); ?></strong></td>
                             <td><?= htmlspecialchars($d['instansi']); ?></td>
                             <td><span class="badge badge-info"><?= htmlspecialchars($d['peran']); ?></span></td>
-                            <td><span class="badge badge-primary"><?= htmlspecialchars($d['nama_template']); ?></span></td>
+                            <td><span class="badge badge-primary"><?= htmlspecialchars($d['template_name']); ?></span></td>
+                            <td>
+                                <?php if ($d['tipe'] === 'default'): ?>
+                                    <span class="badge" style="background: #e8f5e9; color: #2e7d32;">📋 Default</span>
+                                <?php else: ?>
+                                    <span class="badge" style="background: #f3e5f5; color: #6a1b9a;">🎨 Custom</span>
+                                <?php endif; ?>
+                            </td>
                             <td style="font-size: 12px; color: #999;"><?= date('d/m/Y H:i', strtotime($d['dibuat_pada'])); ?></td>
                             <td>
                                 <div class="action-buttons">
-                                    <a href="edit_peserta.php?id=<?= $d['id']; ?>" class="btn btn-warning">✏️ Edit</a>
-                                    <a href="generate_pdf.php?id=<?= $d['id']; ?>" class="btn btn-success">📄 PDF</a>
-                                    <a href="delete_peserta.php?id=<?= $d['id']; ?>" class="btn btn-danger" onclick="return confirm('Yakin hapus data ini?')">🗑️ Hapus</a>
+                                    <?php if ($d['tipe'] === 'default'): ?>
+                                        <a href="edit_peserta.php?id=<?= $d['id']; ?>" class="btn btn-warning">✏️ Edit</a>
+                                        <a href="generate_pdf.php?id=<?= $d['id']; ?>" class="btn btn-success">📄 PDF</a>
+                                        <a href="delete_peserta.php?id=<?= $d['id']; ?>" class="btn btn-danger" onclick="return confirm('Yakin hapus data ini?')">🗑️ Hapus</a>
+                                    <?php else: ?>
+                                        <a href="generate_pdf.php?type=custom&template_id=<?= $d['custom_cert_id']; ?>&peserta_id=<?= $d['id']; ?>" class="btn btn-success">📄 PDF</a>
+                                        <form method="POST" action="delete_custom_peserta.php" style="display: inline;">
+                                            <input type="hidden" name="peserta_id" value="<?= $d['id']; ?>">
+                                            <button type="submit" class="btn btn-danger" onclick="return confirm('Yakin hapus data ini?')">🗑️ Hapus</button>
+                                        </form>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>

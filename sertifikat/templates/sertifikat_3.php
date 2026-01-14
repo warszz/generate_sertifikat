@@ -200,6 +200,11 @@
                 <div class="detail-row">
                     <span class="detail-label">Dari Instansi:</span> <?= htmlspecialchars($instansi); ?>
                 </div>
+                <?php if (!empty($keterangan)): ?>
+                <div class="detail-row">
+                    <span class="detail-label">Keterangan:</span> <?= htmlspecialchars($keterangan); ?>
+                </div>
+                <?php endif; ?>
             </div>
             
             <div class="certificate-text">
