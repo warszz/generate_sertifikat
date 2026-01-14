@@ -65,9 +65,9 @@ sertifikat/
 1. **Buka Homepage**
    - Akses: `http://localhost/sertifikat/`
 2. **Autentikasi**
-   -resgister untuk mebuat akun 
-   -login ke akun yang sudah ada 
-   -logout keluar dari akun 
+   - registrasi mebuat akun baru
+   - login masuk ke akun yang sudah ada 
+   - logout keluar dari akun 
 
 2. **Tambah Peserta Baru**
    - Klik "Buat Sertifikat Baru"
