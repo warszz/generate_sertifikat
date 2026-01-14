@@ -52,9 +52,10 @@ sertifikat/
 │   ├── sertifikat_1.php      // Template Seminar
 │   ├── sertifikat_2.php      // Template Workshop
 │   └── sertifikat_3.php      // Template Pelatihan
-├── assets/
-│   └── img/                  // Folder untuk background image
 └── index.php                 // Homepage
+└── login.php                 
+└── logout.php
+└── register.php
 ```
 
 ## 📝 Penggunaan

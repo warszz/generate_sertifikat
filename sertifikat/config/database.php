@@ -2,7 +2,7 @@
 $host = 'localhost';
 $db = 'sertifikat';
 $user = 'root';
-$password = 'anwar291221';
+$password = '';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $password);
