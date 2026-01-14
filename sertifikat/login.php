@@ -202,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
         
         <div class="info-box">
-            <strong>🔍 Demo Login:</strong><br>
+            <strong>Demo Login:</strong><br>
             Username: <code style="background: #f0f0f0; padding: 2px 4px; border-radius: 2px;">admin</code><br>
             Password: <code style="background: #f0f0f0; padding: 2px 4px; border-radius: 2px;">admin123</code>
         </div>

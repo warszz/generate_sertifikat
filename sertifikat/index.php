@@ -163,11 +163,7 @@
             <a href="register.php" class="btn btn-secondary">📝 Daftar Akun Baru</a>
         </div>
         
-        <div class="info-box">
-            <strong>ℹ️ Akses Cepat:</strong><br>
-            Untuk menggunakan sistem, silakan login terlebih dahulu.<br>
-            Akun demo: username <code style="background: #f0f0f0; padding: 2px 4px; border-radius: 2px;">admin</code> | password <code style="background: #f0f0f0; padding: 2px 4px; border-radius: 2px;">admin123</code>
-        </div>
+        
     </div>
 </body>
 </html>
